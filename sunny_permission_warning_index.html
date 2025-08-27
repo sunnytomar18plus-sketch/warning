@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Warning — Sunny's Permission Required</title>
+  <style>
+    :root {
+      --bg: #0b0b0f;
+      --card: #12121a;
+      --accent: #ff3b3b;
+      --accent-2: #ffd166;
+      --text: #eaeaf0;
+      --text-dim: #b4b4c7;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: var(--bg); color: var(--text); }
+
+    /* Sticky warning bar */
+    .banner {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .9rem 1.2rem;
+      background: linear-gradient(90deg, var(--accent), #ff6b6b);
+      color: white;
+      font-weight: 700;
+      letter-spacing: .3px;
+      z-index: 50;
+      box-shadow: 0 4px 14px rgba(0,0,0,.35);
+    }
+    .banner .dot { width: 10px; height: 10px; border-radius: 999px; background: white; animation: blink 1s infinite; }
+    @keyframes blink { 0%, 100% { opacity: .25 } 50% { opacity: 1 } }
+
+    /* Main card */
+    .wrap { min-height: 100%; display: grid; place-items: center; padding: 2rem; }
+    .card {
+      width: 100%;
+      max-width: 720px;
+      background: linear-gradient(180deg, var(--card), #0f0f16);
+      border: 1px solid #1f1f2b;
+      border-radius: 18px;
+      padding: 1.2rem;
+      box-shadow: 0 20px 50px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .inner { padding: 2rem; border-radius: 14px; background: radial-gradient(1200px 400px at 50% -20%, rgba(255,59,59,.08), transparent 60%); }
+
+    .title { display: flex; align-items: center; gap: .75rem; margin: 0 0 .5rem; font-size: clamp(1.25rem, 2.4vw + .5rem, 2rem); font-weight: 800; }
+    .title .badge { font-size: .85rem; font-weight: 800; padding: .35rem .6rem; border-radius: 999px; background: rgba(255,59,59,.12); border: 1px solid rgba(255,59,59,.35); color: #ffb3b3; }
+
+    .msg { font-size: clamp(1.1rem, 2.2vw + .4rem, 1.6rem); line-height: 1.4; margin: .25rem 0 1rem; font-weight: 900; text-transform: uppercase; letter-spacing: .5px; }
+
+    .pulse { color: var(--accent); text-shadow: 0 0 0 rgba(0,0,0,0); animation: pulse 1.25s ease-in-out infinite; }
+    @keyframes pulse { 0% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,59,59,0)); }
+                       50% { transform: scale(1.02); filter: drop-shadow(0 0 12px rgba(255,59,59,.6)); }
+                       100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255,59,59,0)); } }
+
+    .sub { color: var(--text-dim); margin-top: .5rem; font-size: .95rem; }
+    .row { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.25rem; }
+    .btn { cursor: pointer; border: 1px solid #2b2b3f; background: #171723; color: #f1f1f6; padding: .8rem 1rem; border-radius: 12px; font-weight: 700; transition: transform .08s ease, box-shadow .2s ease, border-color .2s ease; }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(0,0,0,.25); border-color: #3a3a55; }
+
+    /* Optional: fullscreen overlay on load */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.75); display: none; place-items: center; z-index: 999; padding: 2rem; }
+    .overlay.active { display: grid; }
+    .modal { width: min(720px, 92vw); background: #151521; border: 1px solid #2a2a3e; border-radius: 18px; padding: 1.5rem; text-align: center; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+    .modal h2 { margin: 0 0 .25rem; font-size: 1.35rem; }
+    .modal p { margin: .25rem 0 1rem; color: var(--text-dim); }
+  </style>
+</head>
+<body>
+  <!-- Sticky banner -->
+  <div class="banner" role="alert" aria-live="assertive">
+    <div class="dot" aria-hidden="true"></div>
+    <span>SECURITY NOTICE • YOU ARE BEING WATCHED — DO NOT USE THIS PC WITHOUT SUNNY'S PERMISSION</span>
+  </div>
+
+  <main class="wrap">
+    <section class="card" aria-labelledby="title">
+      <div class="inner">
+        <h1 id="title" class="title">
+          <span class="badge">WARNING</span>
+          <span>Access Restricted</span>
+        </h1>
+
+        <!-- Your exact text (as provided) -->
+        <p class="msg"><span class="pulse">you are being wtched</span> — dont use pc without sunny's permissin</p>
+
+        <p class="sub">Unauthorized access is prohibited. Activity on this device may be monitored and recorded.</p>
+
+        <div class="row">
+          <button class="btn" id="showOverlay">Show Fullscreen Warning</button>
+          <button class="btn" id="copyText">Copy Message</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Overlay modal (optional) -->
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h2>DO NOT PROCEED</h2>
+      <p>you are being wtched — dont use pc without sunny's permissin</p>
+      <button class="btn" id="closeOverlay">I Understand</button>
+    </div>
+  </div>
+
+  <script>
+    // Buttons
+    const showOverlayBtn = document.getElementById('showOverlay');
+    const copyBtn = document.getElementById('copyText');
+    const overlay = document.getElementById('overlay');
+    const closeOverlay = document.getElementById('closeOverlay');
+
+    showOverlayBtn.addEventListener('click', () => overlay.classList.add('active'));
+    closeOverlay.addEventListener('click', () => overlay.classList.remove('active'));
+
+    // Copy the warning text to clipboard
+    copyBtn.addEventListener('click', async () => {
+      const text = "you are being wtched dont use pc without sunny's permissin";
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Copied!';
+        setTimeout(() => (copyBtn.textContent = 'Copy Message'), 1500);
+      } catch (e) {
+        alert('Copy failed.');
+      }
+    });
+
+    // Optional: automatically show overlay the first time someone lands on the page
+    // overlay.classList.add('active');
+  </script>
+</body>
+</html>
